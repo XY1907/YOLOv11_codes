@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SpotShrooms — IIICE Poster v7 (A1)</title>
+<style>
+  /* A1 portrait = 594 x 841 mm. Open in Chrome -> Ctrl+P -> Save as PDF, paper A1,
+     margins None, Background graphics ON -> upload that PDF to Canva.
+     IMG SLOTS (dashed boxes) MUST be replaced with your real images before submission. */
+  @page { size: 594mm 841mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --green:#164d1c; --green2:#2e7d32; --accent:#43a047; --leaf:#7cc47f;
+    --ink:#16231b; --muted:#62736a; --line:#d7e3da; --bg:#ffffff; --soft:#f2f8f3;
+    --water:#2e7d32; --dont:#c62828; --amber:#c87b1a; --slotbg:#f6faf6;
+  }
+  html,body{ background:#828f85; }
+  .poster{ width:594mm; height:841mm; background:var(--bg); color:var(--ink); margin:0 auto;
+    position:relative; overflow:hidden; display:flex; flex-direction:column;
+    font-family:"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+
+  /* ---------- header ---------- */
+  .head{ background:linear-gradient(135deg,var(--green) 0%, var(--green2) 68%, var(--accent) 100%);
+    color:#fff; padding:20mm 22mm 14mm; position:relative; }
+  .head .kicker{ font-size:8mm; letter-spacing:1.4mm; text-transform:uppercase; opacity:.9; font-weight:600; }
+  .head h1{ font-size:42mm; line-height:.96; font-weight:800; margin:2.5mm 0 1.5mm; letter-spacing:-.5mm; }
+  .head .tag{ font-size:11mm; font-weight:400; opacity:.95; }
+  .badges{ position:absolute; top:18mm; right:22mm; display:flex; gap:4mm; }
+  .sdg{ width:28mm; height:28mm; border-radius:5mm; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; color:#fff; font-weight:800; box-shadow:0 1.5mm 5mm rgba(0,0,0,.18); }
+  .sdg small{ font-size:4mm; font-weight:700; letter-spacing:.3mm; }
+  .sdg b{ font-size:12mm; line-height:1; }
+  .sdg9{ background:#e5243b; } .sdg12{ background:#bf8b2e; }
+  .subtheme{ position:absolute; bottom:5mm; right:22mm; font-size:7mm; font-weight:700;
+    background:rgba(255,255,255,.16); padding:2.2mm 5mm; border-radius:30mm; }
+
+  .body{ flex:1; padding:10mm 22mm 0; display:flex; flex-direction:column; gap:6.5mm; }
+  h2{ font-size:11mm; color:var(--green2); font-weight:800; letter-spacing:.2mm;
+    display:flex; align-items:center; gap:4mm; margin-bottom:1mm; }
+  h2::before{ content:""; width:5mm; height:5mm; background:var(--accent); border-radius:1.5mm; display:inline-block; }
+  p,li{ font-size:7mm; line-height:1.28; color:var(--ink); }
+  .muted{ color:var(--muted); }
+  .tinylab{ font-size:5.2mm; text-transform:uppercase; letter-spacing:.5mm; color:var(--muted); font-weight:700; }
+
+  /* ---------- problem ---------- */
+  .problem{ display:flex; gap:11mm; align-items:stretch; }
+  .problem .stat{ flex:0 0 120mm; background:var(--soft); border:1.4mm solid var(--line);
+    border-radius:7mm; padding:9mm; display:flex; flex-direction:column; justify-content:center; }
+  .problem .stat b{ font-size:33mm; color:var(--dont); font-weight:800; line-height:.92; }
+  .problem .stat span{ font-size:7mm; color:var(--muted); margin-top:2mm; }
+  .problem .txt{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+
+  /* ---------- pipeline ---------- */
+  .flow{ display:flex; align-items:stretch; gap:0; margin-top:1mm; }
+  .step{ flex:1; background:#fff; border:1.2mm solid var(--line); border-radius:5mm; padding:5mm 3.5mm; text-align:center; }
+  .step .ic{ font-size:13mm; line-height:1; }
+  .step .t{ font-size:6.6mm; font-weight:800; color:var(--green2); margin:2mm 0 1mm; }
+  .step .d{ font-size:5.4mm; color:var(--muted); line-height:1.22; }
+  .arrow{ display:flex; align-items:center; justify-content:center; width:9mm; color:var(--accent); font-size:11mm; font-weight:800; }
+  .novelty{ margin-top:3mm; font-size:7mm; color:var(--ink); background:var(--soft);
+    border-left:3mm solid var(--accent); border-radius:0 4mm 4mm 0; padding:4mm 6mm; }
+  .novelty b{ color:var(--green2); }
+
+  /* ---------- two models ---------- */
+  .models{ display:flex; gap:11mm; }
+  .model{ flex:1; border:1.4mm solid var(--line); border-radius:7mm; overflow:hidden; }
+  .model .cap{ background:var(--green2); color:#fff; font-size:7.6mm; font-weight:800; padding:4mm 6mm; }
+  .model .in{ padding:5mm 6mm; }
+  .model p{ font-size:6.6mm; line-height:1.26; margin-bottom:3mm; }
+  .chips{ display:flex; flex-wrap:wrap; gap:2.5mm; margin-top:1mm; }
+  .chip{ background:var(--soft); border:1mm solid var(--line); border-radius:20mm;
+    padding:1.6mm 4mm; font-size:5.6mm; font-weight:700; color:var(--green2); }
+  .classchip{ background:#eef6ef; color:var(--ink); }
+  .safety{ margin-top:3mm; font-size:5.8mm; color:var(--amber); background:#fdf6ec;
+    border:1mm solid #f0dcbf; border-radius:4mm; padding:3mm 4mm; }
+  .safety b{ color:#a4630f; }
+
+  /* ---------- performance ---------- */
+  .metrics{ display:flex; gap:11mm; }
+  .mcard{ flex:1; border:1.4mm solid var(--line); border-radius:7mm; overflow:hidden; }
+  .mcard .cap{ background:var(--green); color:#fff; font-size:7mm; font-weight:800; padding:3.5mm 6mm; }
+  .mrow{ display:flex; }
+  .mrow .m{ flex:1; padding:5mm 2mm; text-align:center; border-right:.8mm solid var(--line); }
+  .mrow .m:last-child{ border-right:0; }
+  .mrow .m b{ display:block; font-size:15mm; color:var(--green2); font-weight:800; line-height:1; }
+  .mrow .m span{ font-size:5mm; color:var(--muted); text-transform:uppercase; letter-spacing:.3mm; }
+  .recallnote{ font-size:5.4mm; color:var(--muted); padding:2.5mm 6mm 4mm; }
+  .recallnote b{ color:var(--amber); }
+
+  .charts{ display:flex; gap:9mm; margin-top:6mm; }
+  .chart{ flex:1; display:flex; flex-direction:column; }
+  .chart .ttl{ font-size:6mm; font-weight:800; color:var(--green2); margin-bottom:2mm; }
+  .slot{ border:1.4mm dashed var(--accent); background:var(--slotbg); border-radius:5mm;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    color:var(--muted); padding:5mm; }
+  .slot .si{ font-size:11mm; } .slot .sl{ font-size:5.4mm; font-weight:700; margin-top:1.5mm; color:var(--green2); }
+  .slot .sn{ font-size:4.8mm; margin-top:1mm; }
+  .chart .slot{ height:66mm; }
+
+  /* ---------- visuals row ---------- */
+  .visuals{ display:flex; gap:9mm; }
+  .visuals .chart{ flex:1; }
+  .visuals .slot{ height:72mm; }
+
+  /* ---------- impact / feasible / future ---------- */
+  .three{ display:flex; gap:11mm; }
+  .three > div{ flex:1; }
+  .bignum{ font-size:24mm; color:var(--green2); font-weight:800; line-height:1; }
+  ul{ margin-left:7mm; } li{ margin-bottom:1.8mm; font-size:6.4mm; }
+  .pill{ display:inline-block; background:var(--soft); border:1mm solid var(--line);
+    border-radius:30mm; padding:2mm 5mm; font-size:6mm; font-weight:700; color:var(--green2); margin:0 2.5mm 2.5mm 0; }
+
+  /* ---------- footer ---------- */
+  .foot{ margin-top:auto; background:var(--green); color:#fff; padding:8mm 22mm; display:flex;
+    justify-content:space-between; align-items:center; gap:10mm; }
+  .foot .team b{ font-size:8mm; font-weight:800; }
+  .foot .team div{ font-size:6.4mm; opacity:.92; margin-top:1.5mm; }
+  .foot .qr{ display:flex; align-items:center; gap:5mm; }
+  .foot .qrbox{ width:30mm; height:30mm; background:#fff; border-radius:3mm; display:flex;
+    align-items:center; justify-content:center; color:#16231b; font-size:4.4mm; font-weight:700; text-align:center; padding:2mm; }
+  .foot .who{ font-size:6.6mm; font-weight:700; text-align:right; opacity:.95; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <header class="head">
+    <div class="kicker">Singapore Polytechnic · Agri-Tech Innovation</div>
+    <h1>SpotShrooms</h1>
+    <div class="tag">Eyes on every mushroom, anytime, anywhere.</div>
+    <div class="badges">
+      <div class="sdg sdg9"><small>SDG</small><b>9</b></div>
+      <div class="sdg sdg12"><small>SDG</small><b>12</b></div>
+    </div>
+    <div class="subtheme">Agriculture &amp; Environmental</div>
+  </header>
+
+  <main class="body">
+
+    <!-- PROBLEM -->
+    <section class="problem">
+      <div class="stat">
+        <b>20–30%</b>
+        <span>of mushrooms lost each year to <strong>overwatering</strong> &amp; spoilage</span>
+      </div>
+      <div class="txt">
+        <h2>The Problem</h2>
+        <p>Across Asia, mushroom farms still rely on <strong>manual monitoring</strong>. Workers cannot
+        watch every shelf around the clock, so mature mushrooms get over-watered and rot — a severe,
+        avoidable harvest loss for smallholder oyster-mushroom farms.</p>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section>
+      <h2>How It Works — a self-driving watering layer</h2>
+      <div class="flow">
+        <div class="step"><div class="ic">📷</div><div class="t">AI Camera</div><div class="d">Scans every shelf on a moving rod</div></div>
+        <div class="arrow">›</div>
+        <div class="step"><div class="ic">🧠</div><div class="t">YOLOv8 Vision</div><div class="d">Reads growth stage — <b>whether</b> to water</div></div>
+        <div class="arrow">›</div>
+        <div class="step"><div class="ic">🌡️</div><div class="t">DHT22 + CO₂</div><div class="d">Temp, humidity &amp; CO₂ sensing</div></div>
+        <div class="arrow">›</div>
+        <div class="step"><div class="ic">🌲</div><div class="t">Random Forest</div><div class="d">Predicts <b>how long</b> to mist</div></div>
+        <div class="arrow">›</div>
+        <div class="step"><div class="ic">💧</div><div class="t">Auto Irrigation</div><div class="d">Pi triggers the valve</div></div>
+        <div class="arrow">›</div>
+        <div class="step"><div class="ic">📊</div><div class="t">Dashboard</div><div class="d">Live status on any device</div></div>
+      </div>
+      <div class="novelty"><b>Novelty:</b> uniquely fuses growth-stage vision with an ML-predicted misting
+        <b>duration</b> — replacing one-size-fits-all timers with a crop-aware, sensor-driven irrigation
+        loop that runs as a retrofit add-on on a single Raspberry Pi.</div>
+    </section>
+
+    <!-- TWO MODELS -->
+    <section>
+      <h2>Two Cooperating AI Models</h2>
+      <div class="models">
+        <div class="model">
+          <div class="cap">① YOLOv8 — Computer Vision</div>
+          <div class="in">
+            <p>Trained on <strong>real images</strong> from a Vietnam oyster-mushroom farm shelf. Detects
+            the growth stage of every cluster and counts mushrooms present.</p>
+            <div class="tinylab">Three growth classes</div>
+            <div class="chips">
+              <span class="chip classchip">No Sprout</span>
+              <span class="chip classchip">Small &amp; Medium</span>
+              <span class="chip classchip">Mature</span>
+            </div>
+          </div>
+        </div>
+        <div class="model">
+          <div class="cap">② Random Forest — Misting Regressor</div>
+          <div class="in">
+            <p>Trained on synthetic data grounded in oyster-cultivation literature. Predicts the exact
+            <strong>misting duration (seconds)</strong> from live conditions.</p>
+            <div class="tinylab">Inputs</div>
+            <div class="chips">
+              <span class="chip">Humidity</span><span class="chip">Temperature</span><span class="chip">CO₂</span>
+              <span class="chip">Growth stage</span>
+            </div>
+            <div class="safety"><b>Safety guardrails override the model:</b> never mist Mature ·
+              stop if Humidity &gt; 92% · ventilate if CO₂ &gt; 1500 ppm.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section>
+      <h2>Model Performance &amp; Evaluation</h2>
+      <div class="metrics">
+        <div class="mcard">
+          <div class="cap">YOLOv8 — mushroom detection</div>
+          <div class="mrow">
+            <div class="m"><b>0.973</b><span>Precision</span></div>
+            <div class="m"><b>0.885</b><span>Accuracy</span></div>
+            <div class="m"><b>0.613</b><span>Recall</span></div>
+          </div>
+          <div class="recallnote"><b>Precision-first by design</b> — high precision avoids false watering;
+            recall improves as more field images are labelled.</div>
+        </div>
+        <div class="mcard">
+          <div class="cap">Random Forest — misting regressor (held-out)</div>
+          <div class="mrow">
+            <div class="m"><b>0.920</b><span>R² fit</span></div>
+            <div class="m"><b>1.77s</b><span>MAE</span></div>
+            <div class="m"><b>3.07s</b><span>RMSE</span></div>
+          </div>
+          <div class="recallnote">Predicts misting duration within <b>±1.77 s</b> on average.</div>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="chart"><div class="ttl">YOLOv8 Confusion Matrix</div>
+          <div class="slot"><div class="si">🖼️</div><div class="sl">INSERT IMAGE</div>
+            <div class="sn">runs/detect/train30/<br/>confusion_matrix.png</div></div></div>
+        <div class="chart"><div class="ttl">RF Feature Importance</div>
+          <div class="slot"><div class="si">📊</div><div class="sl">INSERT CHART</div>
+            <div class="sn">Humidity &gt; Temp &gt; CO₂<br/>(export from notebook)</div></div></div>
+        <div class="chart"><div class="ttl">Actual vs Predicted</div>
+          <div class="slot"><div class="si">📈</div><div class="sl">INSERT CHART</div>
+            <div class="sn">R² = 0.920 scatter<br/>(export from notebook)</div></div></div>
+      </div>
+    </section>
+
+    <!-- VISUALS: dashboard + prototype + circuit -->
+    <section>
+      <h2>Working Prototype</h2>
+      <div class="visuals">
+        <div class="chart"><div class="ttl">Web Dashboard (live)</div>
+          <div class="slot"><div class="si">🖥️</div><div class="sl">INSERT SCREENSHOT</div>
+            <div class="sn">Run the app → Win+Shift+S<br/>Live Monitoring + Timing</div></div></div>
+        <div class="chart"><div class="ttl">Physical Prototype</div>
+          <div class="slot"><div class="si">🛠️</div><div class="sl">INSERT CAD / PHOTO</div>
+            <div class="sn">Camera-on-rod + shelves</div></div></div>
+        <div class="chart"><div class="ttl">Circuit</div>
+          <div class="slot"><div class="si">🔌</div><div class="sl">INSERT WIRING</div>
+            <div class="sn">Pi + DHT22 + CO₂ + valve</div></div></div>
+      </div>
+    </section>
+
+    <!-- IMPACT / FEASIBLE / FUTURE -->
+    <section class="three">
+      <div>
+        <h2>Impact</h2>
+        <div class="bignum">15–25%</div>
+        <p class="muted" style="font-size:6mm">projected yield gain from ending over-watering.</p>
+        <ul>
+          <li><strong>SDG 12</strong> — water-efficient production</li>
+          <li><strong>SDG 9</strong> — AI &amp; automation for farms</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Feasible &amp; Ready</h2>
+        <span class="pill">≈ 600 SGD to build</span>
+        <span class="pill">Runs on Raspberry Pi</span>
+        <span class="pill">Retrofit add-on</span>
+        <span class="pill">Retrains on real data</span>
+      </div>
+      <div>
+        <h2>Future Potential</h2>
+        <ul>
+          <li><strong>LLM chatbot</strong> — plain-language "why is it misting?" advice for farmers</li>
+          <li><strong>Multi-crop</strong> — adapt to other fungi &amp; leafy greens</li>
+          <li><strong>CO₂ ventilation loop</strong> — new airflow trigger</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <div class="team">
+      <b>Team SpotShrooms · Singapore Polytechnic</b>
+      <div>Wui Soon Hiang Jordan (EEE) · Sean Ho Yan Xian (CLS) · Teo Xin Yin (SOC) · Pasu Chua (MAE)</div>
+    </div>
+    <div class="qr">
+      <div class="qrbox">QR →<br/>demo video</div>
+      <div class="who">Co-Creating Tomorrow:<br/>Collaborative Innovations<br/>for Global Challenges</div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
