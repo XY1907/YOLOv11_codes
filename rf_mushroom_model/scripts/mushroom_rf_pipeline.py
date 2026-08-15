@@ -446,18 +446,17 @@ log("Saved: feature_importance.png")
 
 # Graph 2 — Actual vs Predicted, with BOTH a fixed y=x reference line AND a fitted
 # trend line through the real predictions, so systematic bias is visible (not just
-# scatter tightness). The reference line is labelled "Ideal" rather than "Perfect
-# prediction" -- it's a fixed mathematical target (predicted == actual), not a
-# claim that the model achieved it; the fitted trend line below is the model's
-# actual performance.
+# scatter tightness). Labelled "Good Prediction" (the fixed target line, predicted
+# == actual) vs. "Actual Prediction" (the model's real fitted trend) so it reads
+# as target-vs-reality rather than a claim that the model achieved perfection.
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.scatterplot(x=y_test, y=y_pred, alpha=0.6, color="#2e7d32", ax=ax)
 mn, mx = min(y_test.min(), y_pred.min()), max(y_test.max(), y_pred.max())
-ax.plot([mn, mx], [mn, mx], "r--", linewidth=1.5, label="Ideal (predicted = actual)")
+ax.plot([mn, mx], [mn, mx], "r--", linewidth=1.5, label="Good Prediction (predicted = actual)")
 slope, intercept = np.polyfit(y_test, y_pred, 1)
 fit_x = np.array([mn, mx])
 ax.plot(fit_x, slope * fit_x + intercept, color="#1565c0", linewidth=1.5,
-        linestyle="-", label=f"Actual fit (slope={slope:.2f}, intercept={intercept:.2f})")
+        linestyle="-", label=f"Actual Prediction (slope={slope:.2f}, intercept={intercept:.2f})")
 ax.text(0.05, 0.90, f"MAE = {mae:.2f}s    R2 = {r2:.3f}\n5-fold CV R2 = {rf_mean_r2:.3f}",
         transform=ax.transAxes, fontsize=12,
         bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
