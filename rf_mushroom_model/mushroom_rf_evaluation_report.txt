@@ -1,0 +1,225 @@
+Mushroom Irrigation Random Forest Regressor Pipeline
+Oyster mushroom (Pleurotus florida / P. pulmonarius warm-strain) automated misting system
+Part of SpotShrooms / OSIP Mushroom. Predicts mist_duration_seconds from live camera
+counts (YOLO growth-stage detector) + ambient sensor readings (RH/temp/CO2).
+
+────────────────────────────────────────────────────────────────────────────
+ASSUMPTIONS & LITERATURE BASIS  (read this before trusting the numbers below)
+────────────────────────────────────────────────────────────────────────────
+This pipeline trains and evaluates entirely on SYNTHETIC data: no real hut
+sensor, camera, or actuator logs exist yet. Every metric printed/plotted here
+(R2, MAE, feature importance, etc.) therefore only shows how well the RF can
+recover the hand-written label formula below -- it is NOT evidence that the
+formula (or the model) matches real misting needs. Treat this as "pipeline
+correctness + statistical rigor" validation, not "real-world accuracy".
+Per the project's design spec, the same pipeline should retrain unchanged
+once real hut data lands -- that retrain is the actual accuracy test.
+
+Where the synthetic label rules came from:
+  - RH / temp bands (fruiting target ~85-95% RH, 20-28C, spawn 25-30C/70-75%,
+    >30C thermal stress) are grounded in the same sources cited in
+    docs/superpowers/specs/2026-06-13-humidity-temp-irrigation-timing-design.md #3:
+      * IJRRR 2018 -- Temperature & RH effects on P. florida fruiting body production
+      * ResearchGate -- RH & Temperature effects on Pleurotus species cultivation
+      * Rhizo Funga -- P. pulmonarius (Phoenix) warm-strain fruiting 18-24C, RH 85-95%
+      * Shroomability -- oyster incubation vs fruiting temperatures
+      * Penn State Extension -- Bacterial Blotch Disease (drives the RH-saturation veto)
+  - The RH>=92% veto is a DELIBERATE ~3pp safety margin below the project's cited
+    rh_hard_max=95% (config/oyster.yaml) -- a design choice, not itself a cited number.
+  - The mature-ratio (>=5%) veto is SOFTER than the sibling irrigation_timing model's
+    blanket "never irrigate mature" rule. Rationale: a shed shelf typically holds
+    mixed-stage mushrooms, so a small mature fraction shouldn't stop misting the
+    co-located pinning/fruiting ones; a larger fraction signals "prioritise harvest".
+    This is a business-logic choice, not literature-cited -- flagged for validation
+    against real harvest data.
+  - CO2 thresholds (800ppm baseline, elevated contribution above ~1200/1800/2000ppm)
+    reflect commonly-cited oyster-cultivation guidance that elevated CO2 during
+    fruiting promotes long stems/small caps, but NO specific primary source is
+    captured in this file -- treat these numbers as uncited/unverified pending a
+    real citation, unlike the RH/temp bands above.
+  - Species label corrected to P. florida/pulmonarius (was P. ostreatus in the first
+    version of this script) to match the tropical strain the rest of the project
+    (config/oyster.yaml) targets.
+────────────────────────────────────────────────────────────────────────────
+
+============================================================
+STEP 1: Generating synthetic dataset (2000 rows)
+============================================================
+Saved: mushroom_training_data.csv (2000 rows)
+
+============================================================
+STEP 2: Dataset Exploration
+============================================================
+
+Shape: (2000, 9)
+
+Basic stats:
+       no_mushroom_sprout_count  ...  mist_duration_seconds
+count                   2000.00  ...                2000.00
+mean                       2.96  ...                   7.73
+std                        2.78  ...                   9.49
+min                        0.00  ...                   0.00
+25%                        1.00  ...                   0.00
+50%                        2.00  ...                   1.65
+75%                        5.00  ...                  14.92
+max                       12.00  ...                  39.60
+
+[8 rows x 9 columns]
+
+Mist duration distribution:
+  Zero (veto): 612 rows (30.6%)
+  Non-zero:    1388 rows
+  Mean:        7.73s
+  Max:         39.6s
+
+Correlation with mist_duration_seconds:
+mist_duration_seconds       1.000
+no_mushroom_sprout_count    0.260
+temp_c                      0.222
+total_count                 0.002
+small_medium_count         -0.039
+co2_ppm                    -0.140
+mature_ratio               -0.455
+mature_count               -0.502
+rh_pct                     -0.534
+Name: mist_duration_seconds, dtype: float64
+
+Multicollinearity check (|correlation| > 0.7 among features):
+  small_medium_count <-> total_count: 0.78
+  small_medium_count <-> co2_ppm: 0.79
+  mature_count <-> mature_ratio: 0.79
+  total_count <-> co2_ppm: 0.85
+  -> importance scores for these pairs should be read as shared/interchangeable,
+     not independent -- see permutation importance in Step 6d for a cross-check.
+
+============================================================
+STEP 3-4: Features, Target, Train/Test Split
+============================================================
+Train: 1600 rows | Test: 400 rows
+
+============================================================
+STEP 5: Training RandomForestRegressor
+============================================================
+Model trained.
+Out-of-bag R^2 (bagging-internal validation, independent of the test split): 0.957
+
+============================================================
+STEP 6: Evaluation on Test Set (single 80/20 split)
+============================================================
+  MAE:  1.140 seconds
+  RMSE: 1.568 seconds
+  R2:   0.972
+  NOTE: a single split on ~2000 rows can still shift a few points either way --
+        see Step 6a for cross-validated estimates, which are the more defensible number.
+
+============================================================
+STEP 6a: 5-fold Cross-Validation vs. Baselines
+============================================================
+
+Mean baseline (DummyRegressor)
+  R2   : -0.001 +/- 0.001
+  MAE  : 8.362 +/- 0.204 s
+  RMSE : 9.486 +/- 0.312 s
+
+Linear Regression
+  R2   : 0.539 +/- 0.022
+  MAE  : 5.145 +/- 0.187 s
+  RMSE : 6.433 +/- 0.214 s
+
+Random Forest (this model)
+  R2   : 0.960 +/- 0.020
+  MAE  : 1.177 +/- 0.092 s
+  RMSE : 1.854 +/- 0.449 s
+
+-> RF beats the mean baseline by +0.961 R2 and beats plain linear regression by +0.421 R2 (cross-validated, 5-fold). This is the actual justification for using an RF here --
+   the mean baseline is near 0 R2 by construction, so the interesting comparison is
+   RF vs. linear regression: a meaningfully positive gap means the RF is capturing
+   real non-linearity/interactions (e.g. the veto thresholds), not just overfitting.
+
+============================================================
+STEP 6b: Split Evaluation — Veto Decision vs. Duration Regression
+============================================================
+Rationale: ~31% of labels are exact zeros from hard veto rules, which are
+near-trivial to predict and inflate the global R2 above. Splitting the evaluation
+into (a) 'should we mist at all' and (b) duration accuracy on the rows where we
+should is a more honest picture.
+
+(a) Veto/should-mist classification (actual>0 vs. predicted>0.5s):
+  Precision : 0.768
+  Recall    : 0.852
+  Accuracy  : 0.713
+  F1        : 0.808
+
+(b) Duration regression on non-zero rows only (n=284):
+  MAE  : 1.321 seconds
+  RMSE : 1.748 seconds
+  R2   : 0.965
+  (Compare this R2 to the global 0.9-ish figure above -- if it's notably lower,
+   the global number was partly inflated by the easy zero cluster.)
+
+============================================================
+STEP 6c: Permutation Importance (test set, 30 repeats)
+============================================================
+Built-in RF feature_importances_ (Gini/impurity-based) can be biased toward
+high-cardinality or correlated features (see Step 2 multicollinearity check).
+Permutation importance -- how much R2 drops when a feature is shuffled -- is a
+more robust, model-agnostic cross-check.
+
+Feature            Gini imp.   Permutation imp. (mean R2 drop)
+  no_mushroom_sprout_count 0.001       0.000
+  small_medium_count       0.039       0.041
+  mature_count             0.190       0.286
+  total_count              0.014       0.018
+  mature_ratio             0.184       0.274
+  rh_pct                   0.505       1.053
+  temp_c                   0.005       0.003
+  co2_ppm                  0.063       0.165
+
+============================================================
+STEP 7: Generating graphs
+============================================================
+Saved: feature_importance.png
+Saved: actual_vs_predicted.png
+Saved: residuals.png
+Saved: duration_distribution.png
+Saved: correlation_heatmap.png
+Saved: stage_vs_duration.png
+Saved: rh_vs_duration.png
+Saved: cv_comparison.png
+
+============================================================
+STEP 8: Saving model
+============================================================
+Saved: mushroom_rf_model.pkl
+
+============================================================
+STEP 9: predict() function
+============================================================
+
+============================================================
+STEP 10: Testing predict() with 5 scenarios
+============================================================
+
+  Scenario A — Early cycle, very dry
+    Result:   31.3s — OK
+    Expected: Long misting duration
+
+  Scenario B — Mid cycle, slightly dry
+    Result:   26.8s — OK
+    Expected: Moderate misting duration
+
+  Scenario C — Mature veto triggered
+    Result:   0s — ALERT: Mature ratio reached 5% — notify owner, skip cycle
+    Expected: 0 — mature ratio 62.5%, notify owner
+
+  Scenario D — Humidity saturated veto
+    Result:   0s — VETO: Humidity already saturated
+    Expected: 0 — already saturated
+
+  Scenario E — Mixed, mature under 5%
+    Result:   0s — ALERT: Mature ratio reached 5% — notify owner, skip cycle
+    Expected: 0 — mature ratio exactly 5%, veto triggered, notify owner
+
+============================================================
+STEP 11: Writing evaluation report
+============================================================
