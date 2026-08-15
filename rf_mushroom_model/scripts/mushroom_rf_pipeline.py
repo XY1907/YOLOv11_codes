@@ -444,13 +444,16 @@ plt.savefig("feature_importance.png", dpi=300, bbox_inches="tight")
 plt.close()
 log("Saved: feature_importance.png")
 
-# Graph 2 — Actual vs Predicted, with BOTH the perfect-prediction line AND a fitted
+# Graph 2 — Actual vs Predicted, with BOTH a fixed y=x reference line AND a fitted
 # trend line through the real predictions, so systematic bias is visible (not just
-# scatter tightness).
+# scatter tightness). The reference line is labelled "Ideal" rather than "Perfect
+# prediction" -- it's a fixed mathematical target (predicted == actual), not a
+# claim that the model achieved it; the fitted trend line below is the model's
+# actual performance.
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.scatterplot(x=y_test, y=y_pred, alpha=0.6, color="#2e7d32", ax=ax)
 mn, mx = min(y_test.min(), y_pred.min()), max(y_test.max(), y_pred.max())
-ax.plot([mn, mx], [mn, mx], "r--", linewidth=1.5, label="Perfect prediction")
+ax.plot([mn, mx], [mn, mx], "r--", linewidth=1.5, label="Ideal (predicted = actual)")
 slope, intercept = np.polyfit(y_test, y_pred, 1)
 fit_x = np.array([mn, mx])
 ax.plot(fit_x, slope * fit_x + intercept, color="#1565c0", linewidth=1.5,
