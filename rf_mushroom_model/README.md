@@ -66,6 +66,36 @@ Otherwise, the RF model predicts the misting duration from all 8 features.
 | Duration regression on non-zero rows only | R²=0.965, MAE=1.32s |
 | Residual mean / std | 0.16s / 1.56s (near-unbiased; slight underprediction on low-nonzero 1–4s durations — see `residuals.png`) |
 
+### What does "5-fold CV" mean?
+
+Instead of one train/test split (train on 80% of rows, test on the other 20%,
+report one score), 5-fold cross-validation:
+
+1. Splits the full dataset into **5 equal chunks** ("folds") — for the
+   2000-row dataset, that's 5 chunks of 400 rows each.
+2. Trains the model **5 separate times**. Each round uses 4 folds (1600 rows)
+   to train, and the **1 remaining fold (400 rows) as the test set** — a
+   different fold each round:
+
+   ```
+   Round 1: [TEST][train][train][train][train]
+   Round 2: [train][TEST][train][train][train]
+   Round 3: [train][train][TEST][train][train]
+   Round 4: [train][train][train][TEST][train]
+   Round 5: [train][train][train][train][TEST]
+   ```
+3. Every row gets used as test data exactly once, and as training data 4
+   times — so you get **5 separate scores** instead of one.
+
+**Why bother:** a single 80/20 split gives one number that partly depends on
+luck — which rows happened to land in the test set. 5-fold CV instead gives a
+**mean ± standard deviation** across 5 different splits, which tells you both
+the average performance *and* how much it varies. A small std (like this
+model's `R²=0.960 ± 0.020`) means the score is consistent and trustworthy,
+not a fluke from one lucky split — that's also what makes the RF-vs-baseline
+comparison above meaningful, since all three models were scored the exact
+same way.
+
 ## Graphs
 - `feature_importance.png` — **two methods side by side**: built-in (Gini)
   importance and permutation importance (mean R² drop) — included together
